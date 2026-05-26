@@ -1,0 +1,14 @@
+# --- Single hard exclusion: GitHub blocks files > 100MB ---
+juce/NoteDance/Builds/MacOSX/build/Debug/libNoteDance.a
+
+# IDE / editor scratch
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs / scratch
+*.log
+scratch/
+tmp/
