@@ -3,7 +3,7 @@
 
     MyPitchShifter.h
     Created: 7 Apr 2026 5:20:58pm
-    Author:  Aaron Giorgio Zanet
+    Author:  Aaron Giorgio Zanet, Xinyi Hu
 
   ==============================================================================
 */
@@ -58,14 +58,20 @@ public:
     //========================================================
     void process (const juce::dsp::ProcessContextReplacing<float>& context)
     {
+        // Get the output audio block from the processing context.
+        // getInputBlock() and getOutputBlock() return the same object
         auto& block = context.getOutputBlock();
 
         const int numSamples  = (int) block.getNumSamples();
-
+        
+        // pitch in semitones -> read velocity ratio.
+        // pitch = 0  -> ratio = 1.0, no pitch shift.
+        // pitch = 12 -> ratio = 2.0, one octave up.
+        // pitch = -12 -> ratio = 0.5, one octave down.
         const float pitchRatio =
             std::pow (2.0f, pitch / 12.0f);
 
-
+        // the first channel
         auto* x = block.getChannelPointer (0);
 
         auto& buffer   = buffers[0];
@@ -81,10 +87,11 @@ public:
 
             const float wet = linearRead (buffer, readPos);
 
-            x[i] = dry + mix * (wet - dry);
-
+            x[i] = mix * wet +  (1 - mix) * dry;
+            //x[i] = dry + mix * (wet - dry);
+            
+            // **if pitchRatio=2, raed half the samples**
             writePos = (writePos + 1) % bufferSize;
-
             readPos += pitchRatio;
 
             while (readPos >= bufferSize)
